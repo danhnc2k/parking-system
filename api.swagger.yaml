@@ -1,0 +1,263 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: 'https://virtserver.swaggerhub.com/danhorg/ParkingSystemAPIs/1.0.0'
+info:
+  version: 1.0.0
+  title: Parking System APIs
+  description: The APIs for the Parking System project
+paths:
+  /parking/tickets:
+    post:
+      tags:
+        - Tickets
+      operationId: createTickets
+      summary: This API is used to create new tickets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/CreateTicketResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+          
+  /parking/tickets/close:
+    post:
+      tags:
+        - Tickets
+      operationId: closeTickets
+      summary: This API is used to close tickets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseTicketRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/CloseTicketResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  
+  /parking/fee:
+    get:
+      tags:
+        - Fee
+      operationId: getFee
+      summary: This API is used to get fee of parking vehicle
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+      responses:
+        '200':
+          $ref: '#/components/responses/GetFeeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+          
+  /parking/payment:
+    post:
+      tags:
+        - Payment
+      operationId: createPayment
+      summary: This API is used to create payment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/CreatePaymentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+          
+components:
+  parameters:
+    TicketId:
+      name: ticket_id
+      in: query
+      schema:
+        $ref: '#/components/schemas/TicketId'
+  schemas:
+    TicketId:
+      type: string
+      description: The ticket unique ID
+      example: '1000000001'
+    CreateTicketRequest:
+      type: object
+      required:
+        - vehicleNumer
+        - vehicleType
+      properties:
+        vehicleNumer:
+          type: string
+          description: The vehicle registration number
+          example: '72F1-12345'
+        vehicleType:
+          type: string
+          description: The vehicle type
+          enum:
+            - Motocycle
+            - Car
+            - Bus
+          example: Motocycle
+    CloseTicketRequest:
+      type: object
+      required:
+        - ticketId
+      properties:
+        ticketId:
+          $ref: '#/components/schemas/TicketId'
+    CreatePaymentRequest:
+      type: object
+      required:
+        - ticketId
+        - paymentMethod
+      properties:
+        ticketId:
+          $ref: '#/components/schemas/TicketId'
+        paymentMethod:
+          type: string
+          enum:
+            - Cash
+            - Credit Card
+            - Digital Wallet
+          example: Credit Card
+        amount:
+          type: string
+          description: The amount need to pay
+          example: '100.05'
+    CreateTicketResponse:
+      type: object
+      required:
+        - ticketId
+        - parkingId
+      properties:
+        ticketId:
+          $ref: '#/components/schemas/TicketId'
+        parkingId:
+          type: string
+          description: The parking ID, combined of level, row and parking spot ID
+          example: 'B01-A8-1096'
+        entryTime:
+          type: string
+          description: The entry time of vehicle
+          example: '2024-03-26T08:30:00Z'
+    CloseTicketResponse:
+      type: object
+      required:
+        - ticketId
+        - parkingId
+      properties:
+        ticketId:
+          $ref: '#/components/schemas/TicketId'
+        exitTime:
+          type: string
+          description: The exit time of vehicle
+          example: '2024-03-26T10:30:00Z'
+    GetFeeResponse:
+      type: object
+      required:
+        - ticketId
+      properties:
+        ticketId:
+          $ref: '#/components/schemas/TicketId'
+        amount:
+          type: string
+          description: The amount need to pay
+          example: '100.05'
+        entryTime:
+          type: string
+          description: The entry time of vehicle
+          example: '2024-03-26T08:30:00Z'
+        exitTime:
+          type: string
+          description: The exit time of vehicle
+          example: '2024-03-26T10:30:00Z'
+    CreatePaymentResponse:
+      type: object
+      required:
+        - paymentId
+        - ticketId
+      properties:
+        paymentId:
+          type: string
+          description: The payment record unique ID
+          example: '200000001'
+        ticketId:
+          $ref: '#/components/schemas/TicketId'
+        paymentTime:
+          type: string
+          description: The payment time of ticket
+          example: '2024-03-26T10:30:00Z'
+    ErrorResponse:
+      properties:
+        errorId:
+          type: string
+          description: The error ID
+          example: 'E001'
+        message:
+          type: string
+          description: The summary error message
+          example: 'An unexpected error occured'
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      properties:
+        field:
+          type: string
+          description: The error field
+          example: 'testField'
+        issue:
+          type: string
+          description: The error issue of that field
+          example: 'Invalid data format'
+  responses:
+    CreateTicketResponse:
+      description: Successful response for creating tickets
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateTicketResponse'
+    CloseTicketResponse:
+      description: Successful response for closing tickets
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CloseTicketResponse'
+    GetFeeResponse:
+      description: Successful response for getting fee
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetFeeResponse'
+    CreatePaymentResponse:
+      description: Successful response for creating payment
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreatePaymentResponse'
+    BadRequestResponse:
+      description: Bad request reponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalServerErrorResponse:
+      description: Internal server reponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
